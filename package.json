@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "amqp-tools",
   "version": "1.0.0",
   "description": "amqp cli tools",
