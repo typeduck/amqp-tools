@@ -7,6 +7,15 @@ then publish (import) that JSON data.
 When installed globally, the tools are exposed as `amqp-consume` and
 `amqp-publish`.
 
+This application uses [rc](https://www.npmjs.com/package/rc) so you can save
+options. The most useful option would be your AMQP connection url. For example,
+you can create the file `$HOME/.amqp-toolsrc` with the content:
+
+```ini
+url=amqp://alibaba:opensesame@1001nights.com/Cave
+indentation=2
+```
+
 The rest of this README is just the output from using the tools with `--help`.
 
 ## Consume

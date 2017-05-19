@@ -3,6 +3,7 @@
 const Promise = require('bluebird')
 const AMQP = require('amqplib')
 const parseSpecs = require('./parseSpecs')
+const rc = require('rc')
 const cliArgs = require('command-line-args')
 const cliOptions = [{
   name: 'url',
@@ -36,7 +37,14 @@ const cliOptions = [{
   description: 'show help'
 }]
 
-let opts = cliArgs(cliOptions, {partial: true})
+// this shim is due to how rc works
+let defaults = {}
+for (let o of cliOptions) {
+  defaults[o.name] = o.defaultValue
+  delete o.defaultValue
+}
+
+let opts = rc('amqp-tools', defaults, cliArgs(cliOptions, {partial: true}))
 if (opts.help) {
   const cliUsage = require('command-line-usage')
   console.error(cliUsage([{
@@ -95,6 +103,12 @@ function exit (err) {
 }
 
 Promise.try(function () {
+  if (opts.verbose) {
+    const omit = require('lodash.omit')
+    const URL = require('url')
+    let url = URL.format(omit(URL.parse(opts.url), 'auth'))
+    console.error('[%s] Connecting to %s', new Date(), url)
+  }
   return AMQP.connect(opts.url)
 }).then(function (conn) {
   connection = conn.on('error', exit)

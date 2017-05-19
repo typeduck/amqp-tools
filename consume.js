@@ -8,6 +8,7 @@ const AMQP = require('amqplib')
 const UUID = require('uuid')
 const cliArgs = require('command-line-args')
 const parseSpecs = require('./parseSpecs')
+const rc = require('rc')
 
 const cliOptions = [{
   name: 'url',
@@ -52,7 +53,14 @@ const cliOptions = [{
   description: 'show help'
 }]
 
-let opts = cliArgs(cliOptions, {partial: true})
+// this shim is due to how rc works
+let defaults = {}
+for (let o of cliOptions) {
+  defaults[o.name] = o.defaultValue
+  delete o.defaultValue
+}
+
+let opts = rc('amqp-tools', defaults, cliArgs(cliOptions, {partial: true}))
 if (opts.help || !opts._unknown || !opts._unknown.length) {
   const cliUsage = require('command-line-usage')
   console.error(cliUsage([{
@@ -102,6 +110,11 @@ function exit (err) {
 }
 
 Promise.try(function createConnection () {
+  if (opts.verbose) {
+    const URL = require('url')
+    let url = URL.format(omit(URL.parse(opts.url), 'auth'))
+    console.error('[%s] Connecting to %s', new Date(), url)
+  }
   return AMQP.connect(opts.url)
 }).then(function createChannel (conn) {
   connection = conn.on('error', exit)

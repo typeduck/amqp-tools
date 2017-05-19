@@ -1,6 +1,6 @@
 {
   "name": "amqp-tools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "amqp cli tools",
   "preferGlobal": true,
   "bin": {
@@ -15,6 +15,7 @@
     "lodash.assign": "^4.2.0",
     "lodash.omit": "^4.5.0",
     "moment": "^2.18.1",
+    "rc": "^1.2.1",
     "uuid": "^3.0.1"
   },
   "author": "Ruquay K Calloway",
