@@ -201,7 +201,7 @@ function gotMessage (qName, msg) {
   counter += 1
   if (counter === opts.max) {
     return setImmediate(shutdown)
-  } else if (opts.max === Infinity) {
+  } else if (opts.max === Infinity && opts.ack) {
     consumer.ack(msg)
   }
 }
