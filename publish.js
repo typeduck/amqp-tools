@@ -35,16 +35,22 @@ const cliOptions = [{
   type: Boolean,
   defaultValue: false,
   description: 'show help'
+}, {
+  name: 'correlation',
+  alias: 'c',
+  type: String,
+  defaultValue: '',
+  description: 'correlationId on published messages (if not in message)'
 }]
 
 // this shim is due to how rc works
-let defaults = {}
+const defaults = {}
 for (let o of cliOptions) {
   defaults[o.name] = o.defaultValue
   delete o.defaultValue
 }
 
-let opts = rc('amqp-tools', defaults, cliArgs(cliOptions, {partial: true}))
+const opts = rc('amqp-tools', defaults, cliArgs(cliOptions, {partial: true}))
 if (opts.help) {
   const cliUsage = require('command-line-usage')
   console.error(cliUsage([{
@@ -89,8 +95,8 @@ exchange 'amq.topic' using both 'route.one' and 'route.two' routing keys.
   }]))
   process.exit()
 }
-let specs = parseSpecs(opts._unknown || [])
-let cliRoutes = specs.bindings.concat(specs.queues.map(function (q) {
+const specs = parseSpecs(opts._unknown || [])
+const cliRoutes = specs.bindings.concat(specs.queues.map(function (q) {
   return { exchange: '', routingKey: q }
 }))
 
@@ -178,23 +184,30 @@ process.on('SIGTERM', handleInterrupt)
 
 function publish (obj) {
   if (Array.isArray(obj)) { return obj.forEach(publish) }
-  let hasMetadata = obj.fields && obj.properties && obj.content
-  let routes = cliRoutes.slice()
-  if (hasMetadata && !opts.nometa) {
+  const props = obj.content && obj.properties
+  const fields = obj.content && obj.fields
+  const routes = cliRoutes.slice()
+  if (fields && !opts.nometa) {
     routes.push({
-      exchange: opts.queue ? '' : obj.fields.exchange,
-      routingKey: opts.queue ? obj.queue : obj.fields.routingKey
+      exchange: opts.queue ? '' : fields.exchange,
+      routingKey: opts.queue ? obj.queue : fields.routingKey
     })
   }
-  let content = hasMetadata ? obj.content : obj
-  let buff = new Buffer(JSON.stringify(content))
+  const content = (fields || props) ? obj.content : obj
+  const buff = new Buffer(JSON.stringify(content))
+  const correlationId = (props && props.correlationId) || opts.correlation
   waitingForConfirm += 1
+  if (!routes.length) {
+    console.error('No routes for object: %s', JSON.stringify(obj))
+  }
   return Promise.map(routes, function (r) {
-    return publisher.publishAsync(r.exchange, r.routingKey, buff, {
+    const pubOpts = {
       deliveryMode: (obj.properties && obj.properties.deliveryMode) || 1,
       contentType: 'application/json',
       contentEncoding: 'utf-8'
-    })
+    }
+    if (correlationId) { pubOpts.correlationId = correlationId }
+    return publisher.publishAsync(r.exchange, r.routingKey, buff, pubOpts)
   }).then(function () {
     waitingForConfirm -= 1
     checkForQuit()
