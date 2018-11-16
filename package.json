@@ -1,6 +1,6 @@
 {
   "name": "amqp-tools",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "amqp cli tools",
   "preferGlobal": true,
   "bin": {

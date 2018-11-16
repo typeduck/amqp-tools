@@ -194,7 +194,7 @@ function publish (obj) {
     })
   }
   const content = (fields || props) ? obj.content : obj
-  const buff = new Buffer(JSON.stringify(content))
+  const buff = Buffer.from(JSON.stringify(content))
   const correlationId = (props && props.correlationId) || opts.correlation
   waitingForConfirm += 1
   if (!routes.length) {
@@ -207,6 +207,7 @@ function publish (obj) {
       contentEncoding: 'utf-8'
     }
     if (correlationId) { pubOpts.correlationId = correlationId }
+    if (props && props.headers) { pubOpts.headers = props.headers }
     return publisher.publishAsync(r.exchange, r.routingKey, buff, pubOpts)
   }).then(function () {
     waitingForConfirm -= 1
