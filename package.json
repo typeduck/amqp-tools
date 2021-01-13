@@ -8,15 +8,15 @@
     "amqp-publish": "./publish.js"
   },
   "dependencies": {
-    "amqplib": "0.5.2",
-    "bluebird": "3.5.1",
-    "command-line-args": "5.0.1",
-    "command-line-usage": "4.1.0",
+    "amqplib": "^0.6.0",
+    "bluebird": "^3.7.2",
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^6.1.1",
     "lodash.assign": "^4.2.0",
     "lodash.omit": "^4.5.0",
-    "moment": "2.20.1",
-    "rc": "1.2.4",
-    "uuid": "3.2.1"
+    "moment": "^2.29.1",
+    "rc": "^1.2.8",
+    "uuid": "^8.3.2"
   },
   "repository": {
     "type": "git",
