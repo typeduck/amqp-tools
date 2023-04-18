@@ -8,7 +8,7 @@
     "amqp-publish": "./publish.js"
   },
   "dependencies": {
-    "amqplib": "^0.6.0",
+    "amqplib": "^0.10.3",
     "bluebird": "^3.7.2",
     "command-line-args": "^5.1.1",
     "command-line-usage": "^6.1.1",
